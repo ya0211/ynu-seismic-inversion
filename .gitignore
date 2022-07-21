@@ -1,0 +1,9 @@
+__pycache__/
+data/
+tools/
+
+*test_*
+
+*.DS_Store
+*.log
+*.pdf
