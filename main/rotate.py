@@ -75,17 +75,26 @@ def rotate(sac_folder: Path, new_sac_folder: Path,
             _logging.log(level=ERROR, msg="{0}: Horizontal component missing".format(key))
             continue
 
-        lst = SACLst(sac_file=bhz)
-        lst.args('b', 'e', 'delta')
-        z_begin, z_end, z_delta = lst.header_dict.values()
-
         lst = SACLst(sac_file=bhe)
-        lst.args('b', 'e', 'delta')
-        e_begin, e_end, e_delta = lst.header_dict.values()
+        e_cmpaz = lst.get_header('cmpaz')
 
         lst = SACLst(sac_file=bhn)
-        lst.args('b', 'e', 'delta')
-        n_begin, n_end, n_delta = lst.header_dict.values()
+        n_cmpaz = lst.get_header('cmpaz')
+
+        cmpaz_delta = abs(e_cmpaz - n_cmpaz)
+        if not (abs(cmpaz_delta - 90) <= 0.01 or abs(cmpaz_delta - 270) <= 0.01):
+            _logging.log(level=ERROR,
+                         msg="{0}: cmpaz1={1}, cmpaz2={2} are not orthogonal!".format(key, e_cmpaz, n_cmpaz))
+            continue
+
+        lst = SACLst(sac_file=bhz)
+        z_begin, z_end, z_delta = lst.get_header('b', 'e', 'delta')
+
+        lst = SACLst(sac_file=bhe)
+        e_begin, e_end, e_delta = lst.get_header('b', 'e', 'delta')
+
+        lst = SACLst(sac_file=bhn)
+        n_begin, n_end, n_delta = lst.get_header('b', 'e', 'delta')
 
         if not (float(z_delta) == float(e_delta) and float(z_delta) == float(n_delta)):
             print("{0}: delta not equal!".format(key))
@@ -105,13 +114,15 @@ def rotate(sac_folder: Path, new_sac_folder: Path,
         _sac.cmd("cut {0} {1}".format(begin, end))
         _sac.r(bhn.name, bhe.name)
         _sac.cmd("rotate to gcp")
+        _sac.cmd("ch file 1 KCMPNM BHR")
+        _sac.cmd("ch file 2 KCMPNM BHT")
 
-        bhn, bhe = bhn.name + '.dis', bhe.name + '.dis'
-        _sac.w(bhn, bhe)
+        r, t = bhn.name.replace('BHN', 'BHR') + '.dis', bhe.name.replace('BHE', 'BHT') + '.dis'
+        _sac.w(r, t)
 
         _sac.r(bhz.name)
-        bhz = bhz.name + '.dis'
-        _sac.w(bhz)
+        z = bhz.name + '.dis'
+        _sac.w(z)
 
         _sac.close()
 
