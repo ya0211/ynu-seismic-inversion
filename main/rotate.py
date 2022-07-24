@@ -76,13 +76,16 @@ def rotate(sac_folder: Path, new_sac_folder: Path,
             continue
 
         _lst = lst(sac_file=bhz)
-        z_begin, z_end, z_delta = _lst.args('b', 'e', 'delta').values()
+        _lst.args('b', 'e', 'delta')
+        z_begin, z_end, z_delta = _lst.header_dict.values()
 
         _lst = lst(sac_file=bhe)
-        e_begin, e_end, e_delta = _lst.args('b', 'e', 'delta').values()
+        _lst.args('b', 'e', 'delta')
+        e_begin, e_end, e_delta = _lst.header_dict.values()
 
         _lst = lst(sac_file=bhn)
-        n_begin, n_end, n_delta = _lst.args('b', 'e', 'delta').values()
+        _lst.args('b', 'e', 'delta')
+        n_begin, n_end, n_delta = _lst.header_dict.values()
 
         if not (float(z_delta) == float(e_delta) and float(z_delta) == float(n_delta)):
             print("{0}: delta not equal!".format(key))

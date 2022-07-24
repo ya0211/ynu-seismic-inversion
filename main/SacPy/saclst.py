@@ -3,19 +3,19 @@ import subprocess
 from typing import Union
 from pathlib import Path
 
+from ._header import SACHeader
 
-class _SACLst:
+
+class SACLst:
     def __init__(self, sac_file: Union[str, Path]):
+        self.header = SACHeader()
         if type(sac_file) is str:
             self._sac_file = pathlib.Path(sac_file)
         else:
             self._sac_file = sac_file
+        self.header_dict = {}
 
-        self.header_values = {}
-
-    def args(self, *args: str) -> dict:
-        if 'all' in args:
-            raise ValueError("command `all` is not supported")
+    def args(self, *args: str) -> SACHeader:
         keys = args
         _args = " {}"*len(args)
         _args = _args.format(*args)
@@ -28,20 +28,22 @@ class _SACLst:
                 value = float(value)
             except ValueError:
                 value = value
-            self.header_values[key] = value
-        return self.header_values
+            self.header_dict[key] = value
+        self.header.parse(self.header_dict)
+        return self.header
 
-    def b(self) -> float:
-        if 'b' not in self.header_values.keys():
-            self.args('b')
-        return self.header_values['b']
-
-    def e(self) -> float:
-        if 'e' not in self.header_values.keys():
-            self.args('e')
-        return self.header_values['e']
-
-    def delta(self) -> float:
-        if 'delta' not in self.header_values.keys():
-            self.args('delta')
-        return self.header_values['delta']
+    def all(self) -> SACHeader:
+        cmd = "saclst all f {0}".format(self._sac_file).split()
+        values = subprocess.check_output(cmd).decode().strip().split('\n')[1:]
+        for item in values:
+            _item = item.strip().split('  ')
+            key = _item[1]
+            value = _item[-1].strip()
+            try:
+                value = float(value)
+            except ValueError:
+                value = value
+            if value != -12345.0:
+                self.header_dict[key] = value
+        self.header.parse(self.header_dict)
+        return self.header

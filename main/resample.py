@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os
 import glob
 import pathlib
 import argparse
@@ -35,7 +34,7 @@ def period_default(sac_folder: Path) -> float:
     for sac_file in sorted(glob.glob("{0}/*.SAC".format(sac_folder))):
         sac_file = pathlib.Path(sac_file)
         _lst = lst(sac_file=sac_file)
-        delta = _lst.delta()
+        delta = _lst.header.delta
         if delta not in _period:
             _period[delta] = 1
         else:
@@ -50,7 +49,7 @@ def resample(sac_folder: Path, period_resample):
     for sac_file in sorted(glob.glob("{0}/*.SAC".format(sac_folder))):
         sac_file = pathlib.Path(sac_file)
         _lst = lst(sac_file=sac_file)
-        delta = _lst.delta()
+        delta = _lst.header.delta
         if delta != period_resample:
             _sac = SAC(cwd_folder=sac_folder, show_log=True)
             _sac.r(sac_file.name)
