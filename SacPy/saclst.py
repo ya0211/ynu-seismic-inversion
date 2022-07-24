@@ -15,7 +15,7 @@ class SACLst:
             self._sac_file = sac_file
         self.header_dict = {}
 
-    def args(self, *args: str) -> SACHeader:
+    def get_header(self, *args: str):
         keys = args
         _args = " {}"*len(args)
         _args = _args.format(*args)
@@ -30,9 +30,15 @@ class SACLst:
                 value = value
             self.header_dict[key] = value
         self.header.parse(self.header_dict)
-        return self.header
 
-    def all(self) -> SACHeader:
+        values_list = [v for v in self.header_dict.values()]
+        if len(self.header_dict.keys()) <= 1:
+            return values_list[0]
+        else:
+            return values_list
+
+    @property
+    def get_headers(self) -> SACHeader:
         cmd = "saclst all f {0}".format(self._sac_file).split()
         values = subprocess.check_output(cmd).decode().strip().split('\n')[1:]
         for item in values:
