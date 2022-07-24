@@ -8,7 +8,7 @@ import argparse
 from pathlib import Path
 from logging import ERROR
 
-from SacPy import SAC, lst
+from SacPy import SAC, SACLst
 from SacPy.logging import get_logger
 
 root_folder = pathlib.Path(__file__).resolve().parent
@@ -75,17 +75,17 @@ def rotate(sac_folder: Path, new_sac_folder: Path,
             _logging.log(level=ERROR, msg="{0}: Horizontal component missing".format(key))
             continue
 
-        _lst = lst(sac_file=bhz)
-        _lst.args('b', 'e', 'delta')
-        z_begin, z_end, z_delta = _lst.header_dict.values()
+        lst = SACLst(sac_file=bhz)
+        lst.args('b', 'e', 'delta')
+        z_begin, z_end, z_delta = lst.header_dict.values()
 
-        _lst = lst(sac_file=bhe)
-        _lst.args('b', 'e', 'delta')
-        e_begin, e_end, e_delta = _lst.header_dict.values()
+        lst = SACLst(sac_file=bhe)
+        lst.args('b', 'e', 'delta')
+        e_begin, e_end, e_delta = lst.header_dict.values()
 
-        _lst = lst(sac_file=bhn)
-        _lst.args('b', 'e', 'delta')
-        n_begin, n_end, n_delta = _lst.header_dict.values()
+        lst = SACLst(sac_file=bhn)
+        lst.args('b', 'e', 'delta')
+        n_begin, n_end, n_delta = lst.header_dict.values()
 
         if not (float(z_delta) == float(e_delta) and float(z_delta) == float(n_delta)):
             print("{0}: delta not equal!".format(key))
@@ -130,7 +130,7 @@ def read_file(sac_folder: Path) -> list:
     return sorted(keys)
 
 
-def main():
+def main_shell():
     parser = parse_parameters()
     args = parser.parse_args()
 
@@ -151,5 +151,22 @@ def main():
            end_of_record=end_of_record)
 
 
+def main_ide():
+    data_folder = root_folder.parent.joinpath('data')
+
+    sac_folder = data_folder.joinpath('SAC')
+    new_sac_folder = data_folder.joinpath('SAC-N')
+
+    begin_of_record = None
+    end_of_record = None
+
+    keys = read_file(sac_folder=sac_folder)
+    rotate(sac_folder=sac_folder,
+           new_sac_folder=new_sac_folder,
+           keys=keys,
+           begin_of_record=begin_of_record,
+           end_of_record=end_of_record)
+
+
 if __name__ == "__main__":
-    main()
+    main_ide()

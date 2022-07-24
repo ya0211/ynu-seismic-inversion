@@ -77,7 +77,7 @@ def transfer(sac_folder: Path, sac_pzs_folder: Path,
             _sac.close()
 
 
-def main():
+def main_shell():
     parser = parse_parameters()
     args = parser.parse_args()
 
@@ -95,5 +95,22 @@ def main():
              remove_trend=remove_trend)
 
 
+def main_ide():
+    data_folder = root_folder.parent.joinpath('data')
+
+    sac_folder = data_folder.joinpath('SAC')
+    sac_pzs_folder = data_folder.joinpath('SAC_PZs')
+
+    period_longest = 100.
+    period_shortest = 0.5
+
+    f = [0.8/period_longest, 1/period_longest, 1/period_shortest, 1.2/period_shortest]
+
+    transfer(sac_folder=sac_folder,
+             sac_pzs_folder=sac_pzs_folder,
+             f=f,
+             remove_trend=True)
+
+
 if __name__ == "__main__":
-    main()
+    main_ide()

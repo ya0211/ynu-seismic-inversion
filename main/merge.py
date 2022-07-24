@@ -57,7 +57,7 @@ def rename(sac_folder: Path) -> None:
             os.rename(sac_file, new_sac_file)
 
 
-def main():
+def main_shell():
     root_folder = pathlib.Path(__file__).resolve().parent
     parser = parse_parameters()
     args = parser.parse_args()
@@ -67,13 +67,25 @@ def main():
 
     key_merge = read_file(sac_folder=sac_folder)
     if key_merge != list():
-        merge(key_merge=key_merge,
-              sac_folder=sac_folder)
+        merge(key_merge=key_merge, sac_folder=sac_folder)
 
     _rename = args.rename
     if _rename is True:
         rename(sac_folder=sac_folder)
 
 
+def main_ide():
+    root_folder = pathlib.Path(__file__).resolve().parent
+    data_folder = root_folder.parent.joinpath('data')
+
+    sac_folder = data_folder.joinpath('SAC')
+
+    key_merge = read_file(sac_folder=sac_folder)
+    if key_merge != list():
+        merge(key_merge=key_merge, sac_folder=sac_folder)
+
+    rename(sac_folder=sac_folder)
+
+
 if __name__ == "__main__":
-    main()
+    main_ide()

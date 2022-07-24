@@ -5,7 +5,7 @@ import pathlib
 import argparse
 from pathlib import Path
 
-from SacPy import SAC, lst
+from SacPy import SAC, SACLst
 
 
 def parse_parameters():
@@ -33,8 +33,8 @@ def period_default(sac_folder: Path) -> float:
     _period = {}
     for sac_file in sorted(glob.glob("{0}/*.SAC".format(sac_folder))):
         sac_file = pathlib.Path(sac_file)
-        _lst = lst(sac_file=sac_file)
-        delta = _lst.header.delta
+        lst = SACLst(sac_file=sac_file)
+        delta = lst.args('delta').delta
         if delta not in _period:
             _period[delta] = 1
         else:
@@ -48,8 +48,8 @@ def resample(sac_folder: Path, period_resample):
         period_resample = period_default(sac_folder)
     for sac_file in sorted(glob.glob("{0}/*.SAC".format(sac_folder))):
         sac_file = pathlib.Path(sac_file)
-        _lst = lst(sac_file=sac_file)
-        delta = _lst.header.delta
+        lst = SACLst(sac_file=sac_file)
+        delta = lst.args('delta').delta
         if delta != period_resample:
             _sac = SAC(cwd_folder=sac_folder, show_log=True)
             _sac.r(sac_file.name)
@@ -60,7 +60,7 @@ def resample(sac_folder: Path, period_resample):
             _sac.close()
 
 
-def main():
+def main_shell():
     root_folder = pathlib.Path(__file__).resolve().parent
     parser = parse_parameters()
     args = parser.parse_args()
@@ -72,5 +72,15 @@ def main():
     resample(sac_folder=sac_folder, period_resample=period_resample)
 
 
+def main_ide():
+    root_folder = pathlib.Path(__file__).resolve().parent
+    data_folder = root_folder.parent.joinpath('data')
+
+    sac_folder = data_folder.joinpath('SAC-N')
+    period_resample = None
+
+    resample(sac_folder=sac_folder, period_resample=period_resample)
+
+
 if __name__ == "__main__":
-    main()
+    main_ide()

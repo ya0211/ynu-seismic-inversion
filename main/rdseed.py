@@ -93,7 +93,7 @@ def print_header(string):
     print("\n\033[0m")
 
 
-def main():
+def main_shell():
     root_folder = pathlib.Path(__file__).resolve().parent
     parser = parse_parameters()
     args = parser.parse_args()
@@ -113,5 +113,21 @@ def main():
              sac_pzs_output=sac_pzs_output)
 
 
+def main_ide():
+    root_folder = pathlib.Path(__file__).resolve().parent
+    data_folder = root_folder.parent.joinpath('data')
+
+    seed_folder = data_folder
+    output_folder = data_folder
+
+    sac_output = 'SAC'
+    sac_pzs_output = 'SAC_PZs'
+
+    seed2sac(seed_folder=seed_folder,
+             output_folder=output_folder,
+             sac_output=sac_output,
+             sac_pzs_output=sac_pzs_output)
+
+
 if __name__ == "__main__":
-    main()
+    main_ide()
