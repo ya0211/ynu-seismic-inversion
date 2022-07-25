@@ -13,7 +13,7 @@ class SACLst:
             self._sac_file = pathlib.Path(sac_file)
         else:
             self._sac_file = sac_file
-        self.header_dict = {}
+        self._header_dict = {}
 
     def get_header(self, *args: str):
         keys = args
@@ -28,11 +28,10 @@ class SACLst:
                 value = float(value)
             except ValueError:
                 value = value
-            self.header_dict[key] = value
-        self.header.parse(self.header_dict)
-
-        values_list = [v for v in self.header_dict.values()]
-        if len(self.header_dict.keys()) <= 1:
+            self._header_dict[key] = value
+        self.header.header_dict = self._header_dict
+        values_list = [v for v in self._header_dict.values()]
+        if len(self._header_dict.keys()) <= 1:
             return values_list[0]
         else:
             return values_list
@@ -50,6 +49,7 @@ class SACLst:
             except ValueError:
                 value = value
             if value != -12345.0:
-                self.header_dict[key] = value
-        self.header.parse(self.header_dict)
+                self._header_dict[key] = value
+        self.header.header_dict = self._header_dict
         return self.header
+

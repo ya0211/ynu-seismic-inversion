@@ -1,5 +1,8 @@
 class SACHeader:
     def __init__(self):
+        # Self
+        self._header_dict = {}
+
         # Time-series Values
         self.b, self.e, self.o, self.a, self.F, self.ko, self.ka, self.kf = [None] * 8
         self.npts, self.delta, self.depmin, self.depmax, self.depmen, self.scale, self.nvhdr = [None] * 7
@@ -27,6 +30,15 @@ class SACHeader:
         self.user6, self.user7, self.user8, self.user9 = [None] * 4
         self.kuser0, self.kuser1, self.kuser2 = [None] * 3
 
-    def parse(self, kwargs: dict):
-        for key in kwargs.keys():
-            setattr(self, key, kwargs.get(key))
+    def __str__(self):
+        return str(self._header_dict.keys()).replace('dict', 'header')
+
+    @property
+    def header_dict(self):
+        return self._header_dict
+
+    @header_dict.setter
+    def header_dict(self, header_dict):
+        self._header_dict = header_dict
+        for key in self._header_dict.keys():
+            setattr(self, key, self._header_dict.get(key))
