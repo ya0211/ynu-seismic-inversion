@@ -12,7 +12,7 @@ from SacPy import SAC, SACLst
 from SacPy.logging import get_logger
 
 root_folder = pathlib.Path(__file__).resolve().parent
-_logging = get_logger(name="transfer", log_file=root_folder.joinpath("project.log").as_posix())
+_logging = get_logger(name="rotate", log_file=root_folder.joinpath("project.log").as_posix())
 
 
 def parse_parameters():
