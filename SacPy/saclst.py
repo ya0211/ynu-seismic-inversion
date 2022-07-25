@@ -13,6 +13,8 @@ class SACLst:
             self._sac_file = pathlib.Path(sac_file)
         else:
             self._sac_file = sac_file
+        if not self._sac_file.exists():
+            raise FileNotFoundError(self._sac_file.as_posix())
         self._header_dict = {}
 
     def get_header(self, *args: str):
@@ -28,6 +30,8 @@ class SACLst:
                 value = float(value)
             except ValueError:
                 value = value
+            if value == -12345.0:
+                value = None
             self._header_dict[key] = value
         self.header.header_dict = self._header_dict
         values_list = [v for v in self._header_dict.values()]
