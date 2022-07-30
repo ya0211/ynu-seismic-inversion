@@ -3,7 +3,7 @@ import subprocess
 from typing import Union
 from pathlib import Path
 
-from ._header import SACHeader
+from .sac_header import SACHeader
 
 
 class SACLst:
