@@ -1,7 +1,7 @@
 import glob
 from pathlib import Path
 
-from draw import draw_component
+from draw import get_draw3_file
 
 
 def read_file(sac_folder: Path) -> list:
@@ -26,7 +26,7 @@ def main():
 
     key_list = read_file(sac_t_folder)
 
-    draw_component(*key_list, sac_folder=sac_t_folder, out_folder=out_folder, suffix='T', orientation='RTZ')
+    get_draw3_file(*key_list, sac_folder=sac_t_folder, out_folder=out_folder, suffix='T', orientation='RTZ')
 
 
 if __name__ == "__main__":
