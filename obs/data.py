@@ -2,10 +2,97 @@ from numpy import ndarray, linspace
 from typing import Optional
 
 
+class _List(list):
+    def __init__(self, _list: Optional[list] = None):
+        list.__init__([])
+        if _list is None:
+            self.extend([])
+        else:
+            self.extend(_list)
+
+    @property
+    def max(self):
+        if len(self) == 0:
+            return None
+        else:
+            return max(self)
+
+    @property
+    def min(self):
+        if len(self) == 0:
+            return None
+        else:
+            return min(self)
+
+
+class InfoList:
+    def __init__(self):
+        self.id = []
+        self.data = []
+        self.gcarc = _List()
+        self.az = _List()
+        self.sac = []
+
+        self._list = []
+
+    @property
+    def size(self):
+        return len(self.id)
+
+    def update(self, _id, _data, _dist, _az, _sac):
+        self.id.append(_id)
+        self.data.append(_data)
+        self.gcarc.append(_dist)
+        self.az.append(_az)
+        self.sac.append(_sac)
+
+    def get(self, index):
+        return [self.id[index],
+                self.data[index],
+                self.gcarc[index],
+                self.az[index],
+                self.sac[index]]
+
+    @property
+    def reshape(self):
+        if len(self._list) == 0:
+            for index in range(0, self.size):
+                self._list.append(self.get(index))
+        return self._list
+
+    def sort(self):
+        result = sorted(self.reshape, key=lambda r: r[2])
+        self.__init__()
+        for item in result:
+            self.update(*item)
+        return result
+
+
 class SACData:
-    def __init__(self, index: Optional[ndarray], element: Optional[ndarray]):
+    def __init__(self, phases_standard: Optional[dict],
+                 index: Optional[ndarray] = None,
+                 element: Optional[ndarray] = None, ):
         self._data_index = index
         self._data_element = element
+
+        self._phases_standard = phases_standard
+        self._phases = None
+
+    @property
+    def time(self):
+        return self._data_index
+
+    @property
+    def data(self):
+        return self._data_element
+
+    @property
+    def phases_travel(self):
+        return self._phases
+
+    @phases_travel.setter
+    def phases_travel(self, phases: Optional[dict]):
+        self._phases = phases
 
     @property
     def b(self):
@@ -19,29 +106,16 @@ class SACData:
     def size(self):
         return self._data_element.size
 
-    def get(self, start, stop):
-        start_element, stop_element = None, None
-        start_index, stop_index = None, None
-        for i in range(0, self._data_index.size - 1):
-            if start_element is None or stop_element is None:
-                b = self._data_index[i]
-                e = self._data_index[i + 1]
-                if b <= start < e:
-                    start_index = e
-                    start_element = i
-                if b <= stop < e:
-                    stop_index = e
-                    stop_element = i
-            else:
-                break
+    def update(self, _index, _element):
+        self._data_index = _index
+        self._data_element = _element
 
-        if start_element is None:
-            start_index = self.b
-            start_element = 0
-        if stop_element is None:
-            stop_index = self.e
-            stop_element = self.size
+    def set_align(self):
+        if self._phases is None:
+            raise ValueError("phases_travel is None")
 
-        self._data_element = self._data_element[start_element:stop_element]
-        self._data_index = linspace(start_index, stop_index, self.size)
-        return self._data_index, self._data_element
+        phases = self._phases_standard.get('phases')
+        time = self._phases_standard.get('time')
+        t = self._phases.get(phases)
+
+        self._data_index -= t - time

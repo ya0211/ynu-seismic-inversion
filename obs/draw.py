@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from obspy import read, Stream, Trace
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 from glob import glob
 
-from data import SACData
+from data import InfoList, SACData
 
 
 class _ASTA:
@@ -74,15 +74,16 @@ class _ASTA:
                 kt = kt_list[t_list.index(t)]
                 ax.axvline(tn, color='red', ymin=0.02, ymax=0.98)
                 ax.text(*(tn + 5, tr.data.min()), tr.stats.sac.get(kt), fontsize=14, color='red')
+
         return ax
 
 
 class _ASOfSTA:
     def __init__(self,
-                 sac_folder: Optional[Path],
-                 time: Optional[tuple],
+                 sac_folder: Optional[Path], *,
+                 phases: Optional[str] = 'P',
                  channel: Optional[str] = 'BHZ',
-                 dist: Optional[tuple] = (35, 45),
+                 gcarc: Optional[tuple] = (90, 180),
                  az: Optional[tuple] = (0, 30),
                  figsize: Optional[tuple] = (10, 13)):
 
@@ -91,32 +92,10 @@ class _ASOfSTA:
         else:
             raise NotADirectoryError(sac_folder.as_posix())
 
-        self._time = time
+        self._phases = phases
         self._channel = channel
-        self._dist_b, self._dist_e = dist
+        self._gcarc_b, self._gcarc_e = gcarc
         self._az_b, self._az_e = az
-
-        class InfoList:
-            def __init__(self):
-                self.file_list = []
-                self.data_list = []
-                self.dist_list = []
-                self.az_list = []
-                self.sac_list = []
-
-            def update(self, _file, _data, _dist, _az, _other):
-                self.file_list.append(_file)
-                self.data_list.append(_data)
-                self.dist_list.append(_dist)
-                self.az_list.append(_az)
-                self.sac_list.append(_other)
-
-            def get(self, i):
-                return [self.file_list[i],
-                        self.data_list[i],
-                        self.dist_list[i],
-                        self.az_list[i],
-                        self.sac_list[i]]
 
         self._info_list = InfoList()
 
@@ -136,42 +115,76 @@ class _ASOfSTA:
             st: Stream = read(sac_file)
             tr = st[0]
             sac = tr.stats.sac
-            dist = sac.get('dist')
-            az = sac.get('az')
-            b = sac.get('b')
-            e = sac.get('e')
+            gcarc, az, b, e = self._get_sac(sac, 'gcarc', 'az', 'b', 'e')
+            phases = self._get_phases_travel(sac)
 
-            if self._dist_b <= dist <= self._dist_e and self._az_b <= az <= self._az_e:
-                self._info_list.update(tr.id, tr.data, dist, az, [b, e])
+            if self._gcarc_b <= gcarc <= self._gcarc_e and self._az_b <= az <= self._az_e:
+                self._info_list.update(tr.id, tr.data, gcarc, az, [b, e, phases])
+        self._info_list.sort()
+
+    @staticmethod
+    def _get_sac(sac, *args):
+        result = []
+        for arg in args:
+            result.append(sac.get(arg))
+        return result
+
+    @staticmethod
+    def _get_phases_travel(sac):
+        t_list = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9']
+        kt_list = ['kt0', 'kt1', 'kt2', 'kt3', 'kt4', 'kt5', 'kt6', 'kt7', 'kt8', 'kt9']
+        result = {}
+        for t in t_list:
+            if t in sac:
+                tn = sac.get(t)
+                kt = kt_list[t_list.index(t)]
+                ktn = sac.get(kt)
+                result[ktn] = tn
+        return result
 
     @property
     def get_info_list(self):
-        if len(self._info_list.file_list) == 0:
+        if self._info_list.size == 0:
             self._get_info_list()
         return self._info_list
 
     def get_ax(self):
         self._get_info_list()
-        for i in range(0, len(self._info_list.data_list)):
-            file, data, dist, az, [b, e] = self._info_list.get(i)
+        b, e, phases = self._info_list.sac[0]
+        time = phases.get(self._phases)
 
-            data = data / 100 + dist
-            if (data.max() - data.min()) < 200:
-                sd = SACData(np.linspace(b, e, data.size), data)
-                self.ax.plot(*sd.get(*self._time), color='black')
-                self.ax_f.text(1, dist, file, fontsize=10)
+        self.ax.axvline(time + 0.5, color='red', ymin=0.02, ymax=0.98)
 
-        self.ax.set_xlim(*self._time)
-        title = r" ".join((
-            "$",
-            "{},".format(self._channel),
-            "dist = {0} \sim {1}km, ".format(self._dist_b, self._dist_e),
-            "az = {0} \sim {1}^o".format(self._az_b, self._az_e),
-            "$"
-        ))
-        self.ax.set_title(title, fontsize=18)
-        self.ax.set_xlabel(r'$ Time(s) $', fontsize=18)
-        self.ax.set_ylabel(r'$ Distance(km) $', fontsize=18)
+        sd = SACData(phases_standard={'phases': self._phases, 'time': time})
+        for item in self._info_list.reshape:
+            file, data, gcarc, az, [b, e, phases] = item
+            sd.phases_travel = phases
+
+            data = data / 1000 + gcarc * 10
+            sd.update(np.linspace(b, e, data.size), data)
+            sd.set_align()
+
+            if (data.max() - data.min()) < 20:
+                self.ax.plot(sd.time, sd.data, color='black')
+                self.ax_f.text(1, gcarc * 10, file, fontsize=10)
+
+        self.ax.set_xlim(time - 40, time + 40)
+        yticks_label = [i / 10 for i in self.ax.get_yticks()]
+        self.ax.set_yticks(self.ax.get_yticks(), yticks_label)
+
+        xticks_label = [int(i - time) for i in self.ax.get_xticks()]
+        self.ax.set_xticks(self.ax.get_xticks(), xticks_label)
+
+        self.ax.tick_params(labelsize=12)
+
+        title = r'$ {0},\ gcarc = {0} \sim {1}^o,\ az = {2} \sim {3}^o $'.format(
+            self._channel,
+            self._gcarc_b, self._gcarc_e,
+            self._az_b, self._az_e
+        )
+        self.ax.set_title(title, fontsize=16)
+        self.ax.set_xlabel('Time(s) [aligned on {0}]'.format(self._phases), fontsize=14)
+        self.ax.set_ylabel('Distance(deg)', fontsize=14)
 
         self.ax_f.set_ylim(*self.ax.get_ylim())
         self.ax_f.set_xlim(0, 10)
@@ -179,8 +192,18 @@ class _ASOfSTA:
 
         return self.ax
 
-    def get_file(self, out_file: Optional[Path]):
+    def get_file(self, out_file: Union[str, Path] = None, *, out_folder: Optional[Path] = None):
         self.get_ax()
+        if out_file is None:
+            out_file = "{0}-gcarc_{1}_{2}-az_{3}_{4}-{5}.pdf".format(
+                self._channel,
+                self._gcarc_b, self._gcarc_e,
+                self._az_b, self._az_e,
+                self._phases
+            )
+        if out_folder is not None:
+            out_file = out_folder.joinpath(out_file)
+
         plt.savefig(fname=out_file.as_posix())
         plt.close()
 
@@ -194,7 +217,7 @@ draw1 = _ASOfSTA
 
 
 def get_draw3_file(*args,
-                   orientation: Optional[str] = 'ENZ',
+                   orientation: Optional[str] = 'RTZ',
                    sac_folder: Path,
                    out_folder: Path,
                    suffix: Optional[str] = None):
@@ -213,4 +236,3 @@ def get_draw3_file(*args,
             out_file = "{0}_{1}.pdf".format(key.replace('.*.M.SAC', '').replace('.', '_'), suffix)
         d = draw3(st=st, phases_travel=True)
         d.get_file(out_file=out_folder.joinpath(out_file))
-
