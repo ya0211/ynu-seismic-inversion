@@ -1,7 +1,7 @@
 import glob
 from pathlib import Path
 
-from draw import get_draw3_file
+from draw_sacpy import get_draw3_file
 
 
 def read_file(sac_folder: Path) -> list:

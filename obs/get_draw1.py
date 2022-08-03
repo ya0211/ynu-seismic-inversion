@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from draw import draw1
+from draw_sacpy import draw1
 
 
 def main():

@@ -227,12 +227,15 @@ def get_draw3_file(*args,
         file_list = [key] * 3
         for i in range(0, 3):
             file_list[i] = file_list[i].replace('*', 'BH' + orientation[i])
+
         st: Stream = read(sac_folder.joinpath(file_list[0]))
         for file in file_list[1:]:
             st += read(sac_folder.joinpath(file))
+
         if suffix is None:
             out_file = "{0}.pdf".format(key.replace('.*.M.SAC', '').replace('.', '_'))
         else:
             out_file = "{0}_{1}.pdf".format(key.replace('.*.M.SAC', '').replace('.', '_'), suffix)
+
         d = draw3(st=st, phases_travel=True)
         d.get_file(out_file=out_folder.joinpath(out_file))
