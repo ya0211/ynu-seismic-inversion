@@ -6,8 +6,8 @@ import argparse
 from pathlib import Path
 from logging import ERROR
 
-from SacPy import SAC
-from SacPy.logging import get_logger
+from SacPy import SACShell
+from SacPy.util.logging import get_logger
 
 root_folder = pathlib.Path(__file__).resolve().parent
 _logging = get_logger(name="transfer", log_file=root_folder.joinpath("project.log").as_posix())
@@ -67,7 +67,7 @@ def transfer(sac_folder: Path, sac_pzs_folder: Path,
             _logging.log(level=ERROR, msg="PZ file error for {0}".format(sac_file.name))
         else:
             pz_file = sac_pzs_folder.joinpath(pzs_file[0])
-            _sac = SAC(cwd_folder=sac_folder, show_log=True)
+            _sac = SACShell(sac_folder, show_log=True)
             _sac.r(sac_file.name)
             if remove_trend is True:
                 _sac.cmd("rmean; rtr; taper")

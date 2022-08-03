@@ -2,13 +2,13 @@ import pathlib
 import subprocess
 from typing import Union
 from pathlib import Path
-from logging import INFO, DEBUG, ERROR
+from logging import INFO
 
-from .logging import get_logger
+from SacPy.util.logging import get_logger
 
 
-class SAC:
-    def __init__(self, cwd_folder: Union[str, Path] = None, show_log=False):
+class SACShell:
+    def __init__(self, cwd_folder: Union[str, Path] = None, *, show_log=False):
         self.args = (cwd_folder, show_log)
         self._show_log = show_log
         self._log_dir = pathlib.Path(__name__).resolve().parent
@@ -41,14 +41,14 @@ class SAC:
         self._logging(name="SAC.cmd", level=INFO, msg=cmd)
         self._sac.stdin.write(bytes("{0} \n".format(cmd).encode()))
 
-    def r(self, *file: str) -> None:
-        _file = " {}"*len(file)
-        _file = _file.format(*file)
+    def r(self, *args: str) -> None:
+        _file = " {}"*len(args)
+        _file = _file.format(*args)
         self.cmd("r{0}".format(_file))
 
-    def w(self, *file: str) -> None:
-        _file = " {}"*len(file)
-        _file = _file.format(*file)
+    def w(self, *args: str) -> None:
+        _file = " {}"*len(args)
+        _file = _file.format(*args)
         self.cmd("w{0}".format(_file))
 
     def w_over(self) -> None:

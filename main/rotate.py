@@ -8,8 +8,8 @@ import argparse
 from pathlib import Path
 from logging import ERROR
 
-from SacPy import SAC, SACLst
-from SacPy.logging import get_logger
+from SacPy import SACShell, SACLst
+from SacPy.util.logging import get_logger
 
 root_folder = pathlib.Path(__file__).resolve().parent
 _logging = get_logger(name="rotate", log_file=root_folder.joinpath("project.log").as_posix())
@@ -110,7 +110,7 @@ def rotate(sac_folder: Path, new_sac_folder: Path,
         else:
             end = end_of_record
 
-        _sac = SAC(cwd_folder=sac_folder, show_log=True)
+        _sac = SACShell(sac_folder, show_log=True)
         _sac.cmd("cut {0} {1}".format(begin, end))
         _sac.r(bhn.name, bhe.name)
         _sac.cmd("rotate to gcp")

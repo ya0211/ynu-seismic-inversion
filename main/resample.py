@@ -5,7 +5,7 @@ import pathlib
 import argparse
 from pathlib import Path
 
-from SacPy import SAC, SACLst
+from SacPy import SACShell, SACLst
 
 
 def parse_parameters():
@@ -51,7 +51,7 @@ def resample(sac_folder: Path, period_resample):
         lst = SACLst(sac_file=sac_file)
         delta = lst.get_header('delta')
         if delta != period_resample:
-            _sac = SAC(cwd_folder=sac_folder, show_log=True)
+            _sac = SACShell(sac_folder, show_log=True)
             _sac.r(sac_file.name)
             if delta < period_resample:
                 _sac.cmd("lp c {}".format(0.5/period_resample))

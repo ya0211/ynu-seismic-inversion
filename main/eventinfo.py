@@ -7,7 +7,7 @@ import argparse
 from pathlib import Path
 from datetime import datetime
 
-from SacPy import SAC
+from SacPy import SACShell
 
 
 def parse_parameters():
@@ -42,7 +42,7 @@ def add_event_info(sac_folder: Path, info: dict) -> None:
 
     # limit: a group of 50 *.SAC
     for sac_file in split(sac_folder, 50):
-        _sac = SAC(cwd_folder=sac_folder, show_log=True)
+        _sac = SACShell(sac_folder, show_log=True)
         _sac.r(*sac_file)
         _sac.cmd("synchronize")
         _sac.cmd("ch o gmt {0} {1} {2} {3} {4} {5}".format(

@@ -3,21 +3,22 @@ import subprocess
 from typing import Union
 from pathlib import Path
 
-from .sac_header import SACHeader
+from SacPy.io.header import SACHeader
 
 
 class SACLst:
     def __init__(self, sac_file: Union[str, Path]):
-        self.header = SACHeader()
+        self._sac_header = SACHeader()
         if type(sac_file) is str:
-            self._sac_file = pathlib.Path(sac_file)
-        else:
+            sac_file = pathlib.Path(sac_file)
+
+        if sac_file.exists():
             self._sac_file = sac_file
-        if not self._sac_file.exists():
-            raise FileNotFoundError(self._sac_file.as_posix())
-        self._header_dict = {}
+        else:
+            raise FileNotFoundError(sac_file.as_posix())
 
     def get_header(self, *args: str):
+        _header_dict = {}
         keys = args
         _args = " {}"*len(args)
         _args = _args.format(*args)
@@ -32,16 +33,16 @@ class SACLst:
                 value = value
             if value == -12345.0:
                 value = None
-            self._header_dict[key] = value
-        self.header.header_dict = self._header_dict
-        values_list = [v for v in self._header_dict.values()]
-        if len(self._header_dict.keys()) <= 1:
+            _header_dict[key] = value
+        self._sac_header.header_dict = _header_dict
+        values_list = [v for v in _header_dict.values()]
+        if len(_header_dict.keys()) <= 1:
             return values_list[0]
         else:
             return values_list
 
-    @property
     def get_headers(self) -> SACHeader:
+        _header_dict = {}
         cmd = "saclst all f {0}".format(self._sac_file).split()
         values = subprocess.check_output(cmd).decode().strip().split('\n')[1:]
         for item in values:
@@ -53,7 +54,6 @@ class SACLst:
             except ValueError:
                 value = value
             if value != -12345.0:
-                self._header_dict[key] = value
-        self.header.header_dict = self._header_dict
-        return self.header
-
+                _header_dict[key] = value
+        self._sac_header.header_dict = _header_dict
+        return self._sac_header

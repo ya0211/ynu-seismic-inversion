@@ -6,7 +6,7 @@ import pathlib
 import argparse
 from pathlib import Path
 
-from SacPy import SAC
+from SacPy import SACShell
 
 
 def parse_parameters():
@@ -30,7 +30,7 @@ def parse_parameters():
 
 def merge(key_merge: list, sac_folder: Path) -> None:
     for key in key_merge:
-        _sac = SAC(cwd_folder=sac_folder, show_log=True)
+        _sac = SACShell(sac_folder, show_log=True)
         _sac.r("*.{0}".format(key))
         _sac.cmd("merge")
         _sac.w(key)

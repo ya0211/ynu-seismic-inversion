@@ -1,8 +1,8 @@
-class SACHeader:
-    def __init__(self):
-        # Self
-        self._header_dict = {}
+from datetime import datetime, timedelta
 
+
+class SACHeader:
+    def __init__(self, header_dict=None):
         # Time-series Values
         self.b, self.e, self.o, self.a, self.F, self.ko, self.ka, self.kf = [None] * 8
         self.npts, self.delta, self.depmin, self.depmax, self.depmen, self.scale, self.nvhdr = [None] * 7
@@ -30,8 +30,27 @@ class SACHeader:
         self.user6, self.user7, self.user8, self.user9 = [None] * 4
         self.kuser0, self.kuser1, self.kuser2 = [None] * 3
 
+        # Self
+        if header_dict is None:
+            self._header_dict = {}
+        else:
+            self._set_header_dict(header_dict)
+
     def __str__(self):
-        return str(self._header_dict.keys()).replace('dict', 'header')
+        return "{0}".format(self._header_dict)
+
+    def __getitem__(self, item):
+        return self._header_dict[item]
+
+    def __len__(self):
+        return len(self._header_dict)
+
+    @property
+    def time(self):
+        date = datetime(int(self.nzyear), 1, 1) + timedelta(int(self.nzjday) - 1)
+        time = datetime(int(self.nzyear), date.month, date.day,
+                        int(self.nzhour), int(self.nzmin), int(self.nzsec), int(self.nzmsec))
+        return time
 
     @property
     def header_dict(self):
@@ -39,6 +58,18 @@ class SACHeader:
 
     @header_dict.setter
     def header_dict(self, header_dict):
+        self._set_header_dict(header_dict)
+
+    def _set_header_dict(self, header_dict):
         self._header_dict = header_dict
-        for key in self._header_dict.keys():
-            setattr(self, key, self._header_dict.get(key))
+        for key in header_dict.keys():
+            setattr(self, key, header_dict.get(key))
+
+    def get(self, *args):
+        result = []
+        for arg in args:
+            result.append(self._header_dict.get(arg))
+        if len(args) == 1:
+            return result[0]
+        else:
+            return result
