@@ -68,7 +68,7 @@ class _ASTA:
         t_list = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9']
         kt_list = ['kt0', 'kt1', 'kt2', 'kt3', 'kt4', 'kt5', 'kt6', 'kt7', 'kt8', 'kt9']
         for t in t_list:
-            if t in tr.header.header_dict:
+            if t in tr.header:
                 tn = tr.header.get(t)
                 kt = kt_list[t_list.index(t)]
                 ax.axvline(tn, color='red', ymin=0.02, ymax=0.98)
@@ -114,33 +114,19 @@ class _ASOfSTA:
             tr = read(sac_file)
             header = tr.header
             gcarc, az, b, e = header.get('gcarc', 'az', 'b', 'e')
-            phases = self._get_phases_travel(header)
+            phases = header.kt2t
 
             if self._gcarc_b <= gcarc <= self._gcarc_e and self._az_b <= az <= self._az_e:
                 self._info_list.update(tr.id, tr.data, gcarc, az, [b, e, phases])
         self._info_list.sort()
 
-    @staticmethod
-    def _get_phases_travel(header):
-        t_list = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9']
-        kt_list = ['kt0', 'kt1', 'kt2', 'kt3', 'kt4', 'kt5', 'kt6', 'kt7', 'kt8', 'kt9']
-        result = {}
-        for t in t_list:
-            if t in header.header_dict:
-                tn = header.get(t)
-                kt = kt_list[t_list.index(t)]
-                ktn = header.get(kt)
-                result[ktn] = tn
-        return result
-
-    @property
     def get_info_list(self):
         if self._info_list.size == 0:
             self._get_info_list()
         return self._info_list
 
     def get_ax(self):
-        self._get_info_list()
+        self.get_info_list()
         b, e, phases = self._info_list.sac[0]
         time = phases.get(self._phases)
 

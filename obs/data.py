@@ -1,4 +1,4 @@
-from numpy import ndarray, linspace
+from numpy import ndarray
 from typing import Optional
 
 
@@ -55,13 +55,13 @@ class InfoList:
 
     @property
     def reshape(self):
-        if len(self._list) == 0:
+        if not self._list:
             for index in range(0, self.size):
                 self._list.append(self.get(index))
         return self._list
 
-    def sort(self):
-        result = sorted(self.reshape, key=lambda r: r[2])
+    def sort(self, index=2):
+        result = sorted(self.reshape, key=lambda r: r[index])
         self.__init__()
         for item in result:
             self.update(*item)

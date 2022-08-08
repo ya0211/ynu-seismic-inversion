@@ -37,11 +37,14 @@ class Stats:
         self.endtime = time + timedelta(seconds=int(header['e']))
 
     def __str__(self):
-        _str = "network: ".rjust(16, ' ') + "{}\n".format(self.network)
-        _str += "station: ".rjust(16, ' ') + "{}\n".format(self.station)
-        _str += "location: ".rjust(16, ' ') + "{}\n".format(self.location)
-        _str += "channel: ".rjust(16, ' ') + "{}\n".format(self.channel)
-        _str += "starttime: ".rjust(16, ' ') + "{}\n".format(self.starttime)
-        _str += "endtime: ".rjust(16, ' ') + "{}\n".format(self.endtime)
-        _str += "delta: ".rjust(16, ' ') + "{:08f}\n".format(self.delta)
-        return _str
+        string = "network: ".rjust(16, ' ') + "{}\n".format(self.network)
+        string += "station: ".rjust(16, ' ') + "{}\n".format(self.station)
+        string += "location: ".rjust(16, ' ') + "{}\n".format(self.location)
+        string += "channel: ".rjust(16, ' ') + "{}\n".format(self.channel)
+        string += "starttime: ".rjust(16, ' ') + "{}\n".format(self.starttime)
+        string += "endtime: ".rjust(16, ' ') + "{}\n".format(self.endtime)
+        string += "delta: ".rjust(16, ' ') + "{:08f}\n".format(self.delta)
+        return string
+
+    def __repr__(self):
+        return self.__str__()

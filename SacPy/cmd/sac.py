@@ -38,7 +38,7 @@ class SACShell:
             _logging.log(level=level, msg=msg)
 
     def cmd(self, cmd: str) -> None:
-        self._logging(name="SAC.cmd", level=INFO, msg=cmd)
+        self._logging(name="SACShell.cmd", level=INFO, msg=cmd)
         self._sac.stdin.write(bytes("{0} \n".format(cmd).encode()))
 
     def r(self, *args: str) -> None:

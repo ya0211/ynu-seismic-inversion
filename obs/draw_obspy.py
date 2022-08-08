@@ -124,32 +124,31 @@ class _ASOfSTA:
 
     @staticmethod
     def _get_sac(sac, *args):
-        result = []
-        for arg in args:
-            result.append(sac.get(arg))
-        return result
+        values = []
+        for key in args:
+            values.append(sac.get(key))
+        return values
 
     @staticmethod
     def _get_phases_travel(sac):
         t_list = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9']
         kt_list = ['kt0', 'kt1', 'kt2', 'kt3', 'kt4', 'kt5', 'kt6', 'kt7', 'kt8', 'kt9']
-        result = {}
+        values_dict = {}
         for t in t_list:
             if t in sac:
                 tn = sac.get(t)
                 kt = kt_list[t_list.index(t)]
                 ktn = sac.get(kt)
-                result[ktn] = tn
-        return result
+                values_dict[ktn] = tn
+        return values_dict
 
-    @property
     def get_info_list(self):
         if self._info_list.size == 0:
             self._get_info_list()
         return self._info_list
 
     def get_ax(self):
-        self._get_info_list()
+        self.get_info_list()
         b, e, phases = self._info_list.sac[0]
         time = phases.get(self._phases)
 
