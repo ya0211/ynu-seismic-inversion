@@ -12,6 +12,7 @@ class _Dict(dict):
             self.__setattr__(key, self.get(key))
 
     def __setattr__(self, key, value):
+        self.__dict__[key] = value
         self.__setitem__(key, value)
 
     def __getattr__(self, item):
@@ -19,10 +20,6 @@ class _Dict(dict):
             return None
         else:
             return self.__dict__[item]
-
-    def __setitem__(self, key, value):
-        dict.__setitem__(self, key, value)
-        self.__dict__[key] = value
 
     @property
     def dict(self):
@@ -36,9 +33,6 @@ class _Dict(dict):
             return values[0]
         else:
             return values
-
-    def self_(self):
-        return self
 
 
 dict_ = _Dict
