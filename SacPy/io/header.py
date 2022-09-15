@@ -17,11 +17,11 @@ class SACHeader(dict_):
     def kt(self):
         t_list = ['t0', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 't8', 't9']
         kt_list = ['kt0', 'kt1', 'kt2', 'kt3', 'kt4', 'kt5', 'kt6', 'kt7', 'kt8', 'kt9']
-        values_dict = {}
+        values_dict = dict_()
         for t in t_list:
-            if t in self.__dict__:
-                tn = self.__dict__[t]
+            if self.__contains__(t):
+                tn = self.get(t)
                 kt = kt_list[t_list.index(t)]
-                ktn = self.__dict__[kt]
+                ktn = self.get(kt)
                 values_dict[ktn] = tn
         return values_dict

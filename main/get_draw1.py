@@ -1,3 +1,4 @@
+import numpy as np
 from pathlib import Path
 
 from draw import draw1
@@ -13,6 +14,8 @@ def main():
               phase='sP', channel='BHZ',
               gcarc=(60, 65), az=(30, 60),
               real=True)
+    data = d.get_data()
+    print(data.size)
     d.get_file(out_folder=out_t_folder)
 
 

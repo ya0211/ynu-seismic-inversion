@@ -52,15 +52,6 @@ class _ASTA:
         ax.plot(np.linspace(b, e, tr.data.size), tr.data, color='black')
         return ax
 
-    def get_file(self, out_file: Optional[Path]):
-        self.get_ax()
-        plt.savefig(fname=out_file.as_posix())
-        plt.close()
-
-    def show(self):
-        self.get_ax()
-        plt.show()
-
     @staticmethod
     def _get_phases_travel(ax: Axes, tr: SACTrace):
         header = tr.header
@@ -70,6 +61,19 @@ class _ASTA:
             ax.text(*(tn + 5, tr.data.min()), kt, fontsize=14, color='red')
 
         return ax
+
+    def get_file(self, out_file: Optional[Path]):
+        self.get_ax()
+        plt.savefig(fname=out_file.as_posix())
+        self.close()
+
+    def show(self):
+        self.get_ax()
+        plt.show()
+
+    @staticmethod
+    def close():
+        plt.close()
 
 
 class _ASOfSTA:
@@ -109,17 +113,21 @@ class _ASOfSTA:
         tr = read(sac_file)
         header = tr.header
 
+        data = dict_({"id": tr.id,
+                      "data": tr.data,
+                      "gcarc": header.gcarc,
+                      "az": header.az,
+                      "b": header.b,
+                      "e": header.e,
+                      "phases": header.kt})
+
         if self._gcarc_b <= header.gcarc <= self._gcarc_e and self._az_b <= header.az <= self._az_e:
-            return dict_(
-                {"id": tr.id,
-                 "data": tr.data,
-                 "gcarc": header.gcarc,
-                 "az": header.az,
-                 "b": header.b,
-                 "e": header.e,
-                 "phases": header.kt})
+            return data
         else:
-            return None
+            if sac_file.name == self._refer:
+                return data
+            else:
+                return None
 
     def _get_data(self):
         for sac_file in sorted(glob("{0}/*.{1}.*.SAC".format(self._sac_folder, self._channel))):
@@ -162,6 +170,10 @@ class _ASOfSTA:
         for item in self._data:
             b, e = item.b, item.e
             t = get_t_real_corr(data_refer, item, self._phase)
+
+            if t is None:
+                print("{} skip!".format(item.id))
+                continue
 
             data = item.data / 1000 + item.gcarc * 10
             time = np.linspace(b, e, data.size) - (t - t_refer)
@@ -215,7 +227,7 @@ class _ASOfSTA:
             out_file = out_folder.joinpath(out_file)
 
         plt.savefig(fname=out_file.as_posix())
-        plt.close()
+        self.close()
 
     def show(self):
         self.get_ax()
