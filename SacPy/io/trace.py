@@ -1,4 +1,4 @@
-from numpy import ndarray, array
+from numpy import ndarray, array, ceil
 from typing import Optional
 from datetime import timedelta
 
@@ -23,14 +23,22 @@ class SACTrace:
             self.header.khole,
             self.header.kcmpnm)
 
+    def __str__(self):
+        return "{0} | {1} - {2} | {3} Hz, {4} samples".format(
+            self.id,
+            self.stats.starttime,
+            self.stats.endtime,
+            ceil(1 / self.header.delta),
+            self.data.size)
+
 
 class Stats:
     def __init__(self, header: SACHeader):
-        self.network = header['knetwk']
-        self.station = header['kstnm']
-        self.location = header['khole']
-        self.channel = header['kcmpnm']
-        self.delta = header['delta']
+        self.network = header.knetwk
+        self.station = header.kstnm
+        self.location = header.khole
+        self.channel = header.kcmpnm
+        self.delta = header.delta
 
         time = header.time
         self.starttime = time + timedelta(seconds=int(header['b']))

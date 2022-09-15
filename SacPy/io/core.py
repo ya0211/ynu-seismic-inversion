@@ -68,7 +68,7 @@ def get_sac_header(f, int_type, float_type):
         if header == 'kevnm':
             value = unpack(fromfile(f, 'c', 16), False)
             if value != '-12345':
-                header_dict['kevnm'] = value
+                header_dict[header] = value
         elif header == 'kt':
             for i in range(0, 10):
                 header = "kt{0}".format(i)

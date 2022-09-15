@@ -1,10 +1,7 @@
-#!/usr/bin/env python3
-
 import os
 import glob
 import shutil
 import pathlib
-import argparse
 from pathlib import Path
 from logging import ERROR
 
@@ -13,43 +10,6 @@ from SacPy.util.logging import get_logger
 
 root_folder = pathlib.Path(__file__).resolve().parent
 _logging = get_logger(name="rotate", log_file=root_folder.joinpath("project.log").as_posix())
-
-
-def parse_parameters():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-S",
-                        dest="sac_folder",
-                        metavar="SAC folder",
-                        type=str,
-                        default="data/SAC",
-                        help="""
-                        "SAC"文件存储目录(相对)，默认值: {0}
-                        """.format('%(default)s'))
-    parser.add_argument("-N",
-                        dest="new_sac_output",
-                        metavar="new SAC output",
-                        type=str,
-                        default="SAC-N",
-                        help="""
-                        新"SAC"文件存储目录(相对)，默认值: {0}
-                        """.format('%(default)s'))
-    parser.add_argument("-b",
-                        dest="begin_of_record",
-                        metavar="begin",
-                        type=float,
-                        default=None,
-                        help="""
-                        数据窗的起始时间，默认值: "三分量的最大的起始时间"
-                        """)
-    parser.add_argument("-e",
-                        dest="end_of_record",
-                        metavar="end",
-                        type=float,
-                        default=None,
-                        help="""
-                        数据窗的结束时间，默认值: "三分量的最小的结束时间"
-                        """)
-    return parser
 
 
 def rotate(sac_folder: Path, new_sac_folder: Path,
@@ -141,28 +101,7 @@ def read_file(sac_folder: Path) -> list:
     return sorted(keys)
 
 
-def main_shell():
-    parser = parse_parameters()
-    args = parser.parse_args()
-
-    sac_folder = args.sac_folder
-    sac_folder = root_folder.joinpath(*sac_folder.split("/"))
-    new_sac_output = args.new_sac_output
-    new_sac_folder = sac_folder.parent.joinpath(new_sac_output)
-
-    begin_of_record = args.begin_of_record
-    end_of_record = args.end_of_record
-
-    keys = read_file(sac_folder=sac_folder)
-
-    rotate(sac_folder=sac_folder,
-           new_sac_folder=new_sac_folder,
-           keys=keys,
-           begin_of_record=begin_of_record,
-           end_of_record=end_of_record)
-
-
-def main_ide():
+def main():
     data_folder = root_folder.parent.joinpath('data')
 
     sac_folder = data_folder.joinpath('SAC')
@@ -180,4 +119,4 @@ def main_ide():
 
 
 if __name__ == "__main__":
-    main_ide()
+    main()

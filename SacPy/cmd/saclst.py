@@ -8,7 +8,6 @@ from SacPy.io.header import SACHeader
 
 class SACLst:
     def __init__(self, sac_file: Union[str, Path]):
-        self._sac_header = SACHeader()
         if type(sac_file) is str:
             sac_file = pathlib.Path(sac_file)
 
@@ -34,7 +33,6 @@ class SACLst:
             if value == -12345.0:
                 value = None
             _header_dict[key] = value
-        self._sac_header.header_dict = _header_dict
         values_list = [v for v in _header_dict.values()]
         if len(_header_dict.keys()) <= 1:
             return values_list[0]
@@ -55,5 +53,5 @@ class SACLst:
                 value = value
             if value != -12345.0:
                 _header_dict[key] = value
-        self._sac_header.header_dict = _header_dict
-        return self._sac_header
+
+        return SACHeader(_header_dict)

@@ -1,34 +1,10 @@
-#!/usr/bin/env python3
-
 import glob
 import json
 import pathlib
-import argparse
 from pathlib import Path
 from datetime import datetime
 
 from SacPy import SACShell
-
-
-def parse_parameters():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-S",
-                        dest="sac_folder",
-                        metavar="SAC folder",
-                        type=str,
-                        default="data/SAC",
-                        help="""
-                        "SAC"文件存储目录(相对)，默认值: {0}
-                        """.format('%(default)s'))
-    parser.add_argument("-i",
-                        dest="info_file",
-                        metavar="info file",
-                        type=str,
-                        default="data/CMTSOLUTION.json",
-                        help="""
-                        事件信息，要求JSON格式，默认值: {0}
-                        """.format('%(default)s'))
-    return parser
 
 
 def add_event_info(sac_folder: Path, info: dict) -> None:
@@ -70,29 +46,14 @@ def split(sac_folder: Path, n: int) -> list[list]:
     sac_file = [pathlib.Path(sac_file).name for sac_file in sorted(glob.glob("{0}/*.SAC".format(sac_folder)))]
     sac_file_split = list()
     for i in range(0, len(sac_file), n):
-        if i+n in range(0, len(sac_file)):
-            sac_file_split.append(sac_file[i:i+n])
+        if i + n in range(0, len(sac_file)):
+            sac_file_split.append(sac_file[i:i + n])
         else:
             sac_file_split.append(sac_file[i:])
     return sac_file_split
 
 
-def main_shell():
-    root_folder = pathlib.Path(__file__).resolve().parent
-    parser = parse_parameters()
-    args = parser.parse_args()
-
-    sac_folder = args.sac_folder
-    sac_folder = root_folder.joinpath(*sac_folder.split("/"))
-
-    info_file = args.info_file
-    info_file = root_folder.joinpath(*info_file.split("/"))
-
-    info = read_info(info_file=info_file)
-    add_event_info(sac_folder=sac_folder, info=info)
-
-
-def main_ide():
+def main():
     root_folder = pathlib.Path(__file__).resolve().parent
     data_folder = root_folder.parent.joinpath('data')
 
@@ -104,4 +65,4 @@ def main_ide():
 
 
 if __name__ == "__main__":
-    main_ide()
+    main()
